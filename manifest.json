@@ -1,0 +1,74 @@
+{
+  "manifest_version": 3,
+  "name": "OmniKit — Tabs, Focus & Dev Tools",
+  "version": "2.0.0",
+  "description": "All-in-one toolkit: dev utilities, tab sessions, focus mode, clipboard history, screenshots, page watcher, CSS inspector, storage manager, markdown preview & API inspector.",
+  "permissions": [
+    "tabs",
+    "tabGroups",
+    "storage",
+    "unlimitedStorage",
+    "alarms",
+    "notifications",
+    "declarativeNetRequest",
+    "scripting",
+    "cookies",
+    "offscreen"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "OmniKit"
+  },
+  "devtools_page": "devtools/devtools.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/clip.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/snippets.js"],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/reporter.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "*://*/*.md",
+        "*://*/*.markdown",
+        "file:///*.md",
+        "file:///*.markdown"
+      ],
+      "js": ["content/markdown.js"],
+      "css": ["content/markdown.css"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["content/github.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["blocked/blocked.html"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

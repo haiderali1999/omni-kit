@@ -1,0 +1,83 @@
+body.omnikit-md-body {
+  margin: 0;
+  background: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  body.omnikit-md-body { background: #0f1117; }
+  .omnikit-md { color: #e8eaf0 !important; }
+  .omnikit-md code, .omnikit-md pre { background: #1b1e26 !important; }
+  .omnikit-md table th, .omnikit-md table td { border-color: #333a4a !important; }
+  .omnikit-md blockquote { border-color: #333a4a !important; color: #9aa0b0 !important; }
+  .omnikit-md h1, .omnikit-md h2 { border-color: #333a4a !important; }
+}
+
+.omnikit-md {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #24292f;
+  word-wrap: break-word;
+}
+
+.omnikit-md h1, .omnikit-md h2, .omnikit-md h3,
+.omnikit-md h4, .omnikit-md h5, .omnikit-md h6 {
+  margin: 24px 0 12px;
+  line-height: 1.3;
+}
+
+.omnikit-md h1 { font-size: 2em; border-bottom: 1px solid #d0d7de; padding-bottom: .3em; }
+.omnikit-md h2 { font-size: 1.5em; border-bottom: 1px solid #d0d7de; padding-bottom: .3em; }
+
+.omnikit-md p { margin: 0 0 14px; }
+
+.omnikit-md code {
+  background: #f0f2f6;
+  padding: .15em .4em;
+  border-radius: 5px;
+  font: .85em ui-monospace, Menlo, monospace;
+}
+
+.omnikit-md pre {
+  background: #f0f2f6;
+  border-radius: 8px;
+  padding: 14px;
+  overflow-x: auto;
+  margin: 0 0 14px;
+}
+
+.omnikit-md pre code { background: none; padding: 0; font-size: .85em; line-height: 1.5; }
+
+.omnikit-md blockquote {
+  margin: 0 0 14px;
+  padding: 0 1em;
+  border-left: 4px solid #d0d7de;
+  color: #656d76;
+}
+
+.omnikit-md ul, .omnikit-md ol { margin: 0 0 14px; padding-left: 28px; }
+.omnikit-md li { margin: 3px 0; }
+
+.omnikit-md table { border-collapse: collapse; margin: 0 0 14px; display: block; overflow-x: auto; }
+.omnikit-md th, .omnikit-md td { border: 1px solid #d0d7de; padding: 6px 13px; }
+.omnikit-md th { font-weight: 600; }
+
+.omnikit-md img { max-width: 100%; }
+.omnikit-md hr { border: none; border-top: 2px solid #d0d7de; margin: 24px 0; }
+.omnikit-md a { color: #0969da; }
+
+.omnikit-md-toggle {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 2147483647;
+  background: #4f8cff;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 14px;
+  font: 13px -apple-system, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .25);
+}

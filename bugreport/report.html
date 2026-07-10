@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>OmniKit — Bug Report</title>
+  <link rel="stylesheet" href="report.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>🐞 Bug Report</h1>
+      <div class="actions">
+        <button id="copyMd" class="btn primary">Copy as Markdown</button>
+        <button id="downloadMd" class="btn">Download .md</button>
+        <button id="downloadShot" class="btn">Download screenshot</button>
+        <button id="annotateShot" class="btn">Annotate screenshot</button>
+      </div>
+    </header>
+
+    <div class="cols">
+      <div class="col">
+        <label>Title</label>
+        <input id="bugTitle" placeholder="Short summary, e.g. Checkout button does nothing on click" />
+
+        <label>Steps to reproduce</label>
+        <textarea id="bugSteps" rows="4" placeholder="1. Go to …&#10;2. Click …&#10;3. …"></textarea>
+
+        <label>Expected result</label>
+        <textarea id="bugExpected" rows="2" placeholder="What should happen"></textarea>
+
+        <label>Actual result</label>
+        <textarea id="bugActual" rows="2" placeholder="What actually happens"></textarea>
+
+        <label>Severity</label>
+        <select id="bugSeverity">
+          <option>Low</option>
+          <option selected>Medium</option>
+          <option>High</option>
+          <option>Critical</option>
+        </select>
+
+        <h2>Auto-captured environment</h2>
+        <table class="env" id="envTable"></table>
+
+        <h2>Console errors <span id="errCount" class="count"></span></h2>
+        <div class="log" id="errLog"></div>
+
+        <h2>Failed network requests <span id="netCount" class="count"></span></h2>
+        <div class="log" id="netLog"></div>
+      </div>
+
+      <div class="col">
+        <h2>Screenshot</h2>
+        <img id="shot" alt="Screenshot of the page" />
+        <p id="noShot" class="dim hidden">No screenshot available for this page.</p>
+        <p class="dim">The screenshot is attached separately — download it and drag it into your Jira/GitHub ticket alongside the Markdown.</p>
+      </div>
+    </div>
+  </div>
+  <div id="toast"></div>
+  <script src="report.js"></script>
+</body>
+</html>

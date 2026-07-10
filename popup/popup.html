@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <div class="header-row">
+      <h1>OmniKit</h1>
+      <div class="toolbar">
+        <button id="captureBtn" class="icon-btn" title="Capture visible area & annotate">📸</button>
+        <button id="captureFullBtn" class="icon-btn" title="Capture FULL page (scrolls through everything) & annotate">📜</button>
+        <button id="bugBtn" class="icon-btn" title="Generate bug report: screenshot + environment + console errors + failed requests">🐞</button>
+        <button id="peeperBtn" class="icon-btn" title="CSS Peeper: inspect element styles on this page">🎨</button>
+      </div>
+    </div>
+    <nav id="tabs">
+      <button class="tab active" data-panel="dev">Dev</button>
+      <button class="tab" data-panel="tabs">Tabs</button>
+      <button class="tab" data-panel="focus">Focus</button>
+      <button class="tab" data-panel="clips">Clips</button>
+      <button class="tab" data-panel="watch">Watch</button>
+      <button class="tab" data-panel="storage">Storage</button>
+      <button class="tab" data-panel="alerts">Alerts</button>
+      <button class="tab" data-panel="hr">HR</button>
+    </nav>
+  </header>
+
+  <!-- ============ DEV TOOLS ============ -->
+  <section id="panel-dev" class="panel active">
+    <div class="tool-select">
+      <select id="devTool">
+        <option value="json">JSON Formatter</option>
+        <option value="jwt">JWT Decoder</option>
+        <option value="base64">Base64 Encode / Decode</option>
+        <option value="url">URL Encode / Decode</option>
+        <option value="uuid">UUID Generator</option>
+        <option value="timestamp">Timestamp Converter</option>
+        <option value="color">Color Converter</option>
+        <option value="palette">Page Color Palette</option>
+        <option value="emails">Email Finder</option>
+      </select>
+    </div>
+
+    <div class="tool" id="tool-json">
+      <textarea id="jsonInput" placeholder='Paste JSON here… e.g. {"a":1}'></textarea>
+      <div class="row">
+        <button id="jsonPretty" class="btn primary">Pretty</button>
+        <button id="jsonMinify" class="btn">Minify</button>
+        <button id="jsonCopy" class="btn">Copy</button>
+      </div>
+      <pre id="jsonOutput" class="output"></pre>
+    </div>
+
+    <div class="tool hidden" id="tool-jwt">
+      <textarea id="jwtInput" placeholder="Paste a JWT token…"></textarea>
+      <div class="row"><button id="jwtDecode" class="btn primary">Decode</button></div>
+      <pre id="jwtOutput" class="output"></pre>
+    </div>
+
+    <div class="tool hidden" id="tool-base64">
+      <textarea id="b64Input" placeholder="Text or Base64…"></textarea>
+      <div class="row">
+        <button id="b64Encode" class="btn primary">Encode</button>
+        <button id="b64Decode" class="btn">Decode</button>
+        <button id="b64Copy" class="btn">Copy</button>
+      </div>
+      <pre id="b64Output" class="output"></pre>
+    </div>
+
+    <div class="tool hidden" id="tool-url">
+      <textarea id="urlInput" placeholder="Text or URL-encoded string…"></textarea>
+      <div class="row">
+        <button id="urlEncode" class="btn primary">Encode</button>
+        <button id="urlDecode" class="btn">Decode</button>
+        <button id="urlCopy" class="btn">Copy</button>
+      </div>
+      <pre id="urlOutput" class="output"></pre>
+    </div>
+
+    <div class="tool hidden" id="tool-uuid">
+      <div class="row">
+        <button id="uuidGen" class="btn primary">Generate UUID v4</button>
+        <button id="uuidCopy" class="btn">Copy</button>
+      </div>
+      <pre id="uuidOutput" class="output"></pre>
+    </div>
+
+    <div class="tool hidden" id="tool-timestamp">
+      <div class="row"><button id="tsNow" class="btn primary">Now</button></div>
+      <input id="tsInput" placeholder="Epoch (s or ms) or date string…" />
+      <div class="row"><button id="tsConvert" class="btn">Convert</button></div>
+      <pre id="tsOutput" class="output"></pre>
+    </div>
+
+    <div class="tool hidden" id="tool-color">
+      <div class="row">
+        <input type="color" id="colorPicker" value="#4f8cff" />
+        <input id="colorInput" placeholder="#hex, rgb(...), or hsl(...)" />
+        <button id="colorConvert" class="btn primary">Convert</button>
+      </div>
+      <pre id="colorOutput" class="output"></pre>
+    </div>
+
+    <div class="tool hidden" id="tool-palette">
+      <div class="row"><button id="paletteExtract" class="btn primary">Extract colors from this page</button></div>
+      <div id="paletteSwatches" class="swatches"></div>
+      <p class="dim">Click a swatch to copy its hex value.</p>
+    </div>
+
+    <div class="tool hidden" id="tool-emails">
+      <div class="row">
+        <button id="emailExtract" class="btn primary">🔍 Find emails on this page</button>
+      </div>
+      <p class="dim">Scans this page's visible text and mailto links only — one page at a time,
+        no scrolling or auto-navigation. Respect each site's terms and applicable privacy law
+        (GDPR/CAN-SPAM) before using addresses for outreach.</p>
+      <div class="row">
+        <button id="emailCopyAll" class="btn">Copy all</button>
+        <button id="emailExportCsv" class="btn">Export CSV</button>
+      </div>
+      <ul id="emailList" class="list"></ul>
+    </div>
+  </section>
+
+  <!-- ============ TABS ============ -->
+  <section id="panel-tabs" class="panel">
+    <div class="stat-row">
+      <div class="stat"><span id="tabCount">0</span><label>tabs open</label></div>
+      <div class="stat"><span id="dupCount">0</span><label>duplicates</label></div>
+    </div>
+    <div class="row">
+      <button id="closeDups" class="btn">Close duplicates</button>
+      <button id="groupByDomain" class="btn">Group by domain</button>
+    </div>
+    <hr />
+    <div class="row">
+      <input id="sessionName" placeholder="Session name…" />
+      <button id="saveSession" class="btn primary">Save session</button>
+    </div>
+    <ul id="sessionList" class="list"></ul>
+  </section>
+
+  <!-- ============ FOCUS ============ -->
+  <section id="panel-focus" class="panel">
+    <div class="focus-status">
+      <div id="pomodoroTimer" class="timer hidden">
+        <span id="timerPhase"></span>
+        <span id="timerRemaining">--:--</span>
+      </div>
+      <div class="row">
+        <label class="switch-label">
+          <input type="checkbox" id="focusToggle" />
+          Focus mode (block sites)
+        </label>
+      </div>
+      <div class="row">
+        <input id="focusMin" type="number" min="1" max="120" value="25" title="Focus minutes" />
+        <span class="dim">min focus /</span>
+        <input id="breakMin" type="number" min="1" max="60" value="5" title="Break minutes" />
+        <span class="dim">min break</span>
+      </div>
+      <div class="row">
+        <button id="pomodoroStart" class="btn primary">Start Pomodoro</button>
+        <button id="pomodoroStop" class="btn hidden">Stop</button>
+      </div>
+      <p class="dim" id="todayStats"></p>
+    </div>
+    <hr />
+    <div class="row">
+      <input id="blockInput" placeholder="Add domain, e.g. youtube.com" />
+      <button id="blockAdd" class="btn">Add</button>
+    </div>
+    <ul id="blockList" class="list"></ul>
+  </section>
+
+  <!-- ============ CLIPS ============ -->
+  <section id="panel-clips" class="panel">
+    <div class="row">
+      <input id="clipSearch" placeholder="Search clipboard history…" />
+      <button id="clipClear" class="btn danger">Clear</button>
+    </div>
+    <p class="dim">Everything you copy on web pages is saved here automatically.</p>
+    <ul id="clipList" class="list"></ul>
+  </section>
+
+  <!-- ============ WATCH ============ -->
+  <section id="panel-watch" class="panel">
+    <div class="row">
+      <button id="watchPick" class="btn primary">🎯 Pick element on this page</button>
+      <button id="watchCheckAll" class="btn">Check all now</button>
+    </div>
+    <div class="row">
+      <span class="dim">Check every</span>
+      <input id="watchIntervalMin" type="number" min="1" max="1440" value="30" title="Minutes between automatic checks" />
+      <span class="dim">minutes</span>
+    </div>
+    <p class="dim">Watch a price, stock status, or any text — you'll get a notification when it changes.</p>
+    <ul id="watchList" class="list"></ul>
+  </section>
+
+  <!-- ============ STORAGE ============ -->
+  <section id="panel-storage" class="panel">
+    <nav class="subtabs">
+      <button class="subtab active" data-store="cookies">Cookies</button>
+      <button class="subtab" data-store="local">localStorage</button>
+      <button class="subtab" data-store="session">sessionStorage</button>
+    </nav>
+    <p class="dim" id="storageScope"></p>
+    <div class="row">
+      <input id="storeKey" placeholder="name / key" />
+    </div>
+    <div class="row">
+      <input id="storeValue" placeholder="value" />
+      <button id="storeSave" class="btn primary">Save</button>
+    </div>
+    <div class="row">
+      <button id="storeExport" class="btn">Export JSON</button>
+      <button id="storeImport" class="btn">Import JSON</button>
+      <input type="file" id="storeImportFile" accept=".json" class="hidden" />
+    </div>
+    <ul id="storeList" class="list"></ul>
+  </section>
+
+  <!-- ============ ALERTS ============ -->
+  <section id="panel-alerts" class="panel">
+    <div class="row">
+      <label class="switch-label"><input type="checkbox" id="namazToggle" /> 🕌 Namaz alerts</label>
+    </div>
+    <div class="row">
+      <input id="namazCity" placeholder="City, e.g. Karachi" />
+      <input id="namazCountry" placeholder="Country, e.g. Pakistan" />
+    </div>
+    <div id="namazTimes" class="namaz-times"></div>
+    <p class="dim" id="namazStatus"></p>
+    <hr />
+    <div class="row">
+      <label class="switch-label"><input type="checkbox" id="waterToggle" /> 💧 Water reminder every</label>
+      <input id="waterMin" type="number" min="5" max="480" value="60" />
+      <span class="dim">min</span>
+    </div>
+    <div class="row">
+      <label class="switch-label"><input type="checkbox" id="eyeToggle" /> 👀 Eye break (20·20·20) every</label>
+      <input id="eyeMin" type="number" min="5" max="120" value="20" />
+      <span class="dim">min</span>
+    </div>
+    <hr />
+    <p class="dim">Meeting &amp; custom alerts — one-time or daily:</p>
+    <div class="row">
+      <input id="alertLabel" placeholder="Label, e.g. Standup meeting" />
+    </div>
+    <div class="row">
+      <input id="alertTime" type="time" />
+      <label class="switch-label"><input type="checkbox" id="alertDaily" /> repeat daily</label>
+      <button id="alertAdd" class="btn primary">Add</button>
+    </div>
+    <ul id="alertList" class="list"></ul>
+  </section>
+
+  <!-- ============ HR ============ -->
+  <section id="panel-hr" class="panel">
+    <nav class="subtabs">
+      <button class="subtab active" data-hr="snippets">Snippets</button>
+      <button class="subtab" data-hr="candidates">Candidates</button>
+      <button class="subtab" data-hr="checklists">Checklists</button>
+    </nav>
+
+    <div id="hr-snippets">
+      <p class="dim">Type the shortcut (e.g. <b>;reject</b>) in any text field on any website to expand it.
+        Use <b>{name}</b>-style placeholders — you'll be asked to fill them on expansion.</p>
+      <div class="row">
+        <input id="snShortcut" placeholder=";shortcut" />
+        <input id="snTitle" placeholder="Title, e.g. Rejection email" />
+      </div>
+      <textarea id="snBody" placeholder="Dear {name},&#10;&#10;Thank you for applying for the {role} position…"></textarea>
+      <div class="row">
+        <button id="snSave" class="btn primary">Save snippet</button>
+        <button id="snCancel" class="btn hidden">Cancel edit</button>
+      </div>
+      <ul id="snList" class="list"></ul>
+    </div>
+
+    <div id="hr-candidates" class="hidden">
+      <p class="dim">Saves the current page (e.g. a LinkedIn profile) as a candidate. Text selected on the page becomes the note.</p>
+      <div class="row"><input id="cdName" placeholder="Candidate name (auto from page title if empty)" /></div>
+      <div class="row"><input id="cdNote" placeholder="Note (optional)" /></div>
+      <div class="row">
+        <button id="cdAdd" class="btn primary">➕ Save current page</button>
+        <button id="cdExport" class="btn">Export CSV</button>
+      </div>
+      <ul id="cdList" class="list"></ul>
+    </div>
+
+    <div id="hr-checklists" class="hidden">
+      <p class="dim">Create a reusable template, then start one per person/task and tick items off.</p>
+      <div class="row"><input id="clName" placeholder="Template name, e.g. New hire onboarding" /></div>
+      <textarea id="clItems" placeholder="One item per line:&#10;Create email account&#10;Add to Slack&#10;Payroll form&#10;Order laptop"></textarea>
+      <div class="row"><button id="clSaveTpl" class="btn primary">Save template</button></div>
+      <ul id="clTplList" class="list"></ul>
+      <hr />
+      <div id="clActive"></div>
+    </div>
+  </section>
+
+  <script src="popup.js"></script>
+  <script src="clips.js"></script>
+  <script src="watch.js"></script>
+  <script src="storagepanel.js"></script>
+  <script src="alerts.js"></script>
+  <script src="hr.js"></script>
+</body>
+</html>

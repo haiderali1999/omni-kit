@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>OmniKit — Annotate Screenshot</title>
+  <link rel="stylesheet" href="annotate.css" />
+</head>
+<body>
+  <div class="toolbar">
+    <span class="logo">OmniKit ✏️</span>
+    <div class="group" id="tools">
+      <button class="tool active" data-tool="pen" title="Pen">✏️</button>
+      <button class="tool" data-tool="arrow" title="Arrow">↗</button>
+      <button class="tool" data-tool="rect" title="Rectangle">▭</button>
+      <button class="tool" data-tool="ellipse" title="Ellipse">◯</button>
+      <button class="tool" data-tool="text" title="Text">T</button>
+      <button class="tool" data-tool="crop" title="Crop">⬚</button>
+    </div>
+    <div class="group">
+      <input type="color" id="color" value="#ff3b30" title="Color" />
+      <select id="size" title="Line width">
+        <option value="2">Thin</option>
+        <option value="4" selected>Medium</option>
+        <option value="8">Thick</option>
+      </select>
+    </div>
+    <div class="group">
+      <button id="undo" class="btn" title="Undo">↩ Undo</button>
+      <button id="applyCrop" class="btn hidden">✓ Apply crop</button>
+    </div>
+    <div class="group">
+      <button id="fullPage" class="btn" title="Re-capture the whole page by scrolling and stitching">⛶ Full page</button>
+    </div>
+    <div class="group right">
+      <button id="copy" class="btn">Copy</button>
+      <button id="downloadPdf" class="btn">Download PDF</button>
+      <button id="download" class="btn primary">Download PNG</button>
+    </div>
+  </div>
+  <div class="stage">
+    <canvas id="canvas"></canvas>
+    <input id="textInput" class="hidden" placeholder="Type, then press Enter" />
+  </div>
+  <script src="annotate.js"></script>
+</body>
+</html>

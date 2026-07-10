@@ -1,3 +1,16 @@
+# macOS
+.DS_Store
+
+# Chrome extension packing output (the .pem is a private signing key — never commit it)
+*.pem
+*.crx
+
+# Data exported from OmniKit's own tools during local testing (may contain real PII/leads)
+candidates-*.csv
+emails-*.csv
+sessions-*.csv
+*-export.json
+
 # Logs
 logs
 *.log
