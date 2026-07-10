@@ -24,6 +24,8 @@
       <button class="tab" data-panel="storage">Storage</button>
       <button class="tab" data-panel="alerts">Alerts</button>
       <button class="tab" data-panel="hr">HR</button>
+      <button class="tab" data-panel="theme">Theme</button>
+      <button class="tab" data-panel="settings">Settings</button>
     </nav>
   </header>
 
@@ -303,11 +305,85 @@
     </div>
   </section>
 
+  <!-- ============ THEME ============ -->
+  <section id="panel-theme" class="panel">
+    <h2 class="section-title">Theme</h2>
+    <p class="dim">Pick a built-in theme, or choose Custom to set your own colors.</p>
+    <div class="theme-options" id="themeOptions">
+      <button class="theme-swatch" data-theme="dark">
+        <span class="theme-preview" style="background:#1b1e26"><span style="background:#4f8cff"></span></span>
+        Dark
+      </button>
+      <button class="theme-swatch" data-theme="light">
+        <span class="theme-preview" style="background:#f5f6f8"><span style="background:#3d6fe0"></span></span>
+        Light
+      </button>
+      <button class="theme-swatch" data-theme="midnight">
+        <span class="theme-preview" style="background:#0d1117"><span style="background:#7c5cff"></span></span>
+        Midnight
+      </button>
+      <button class="theme-swatch" data-theme="custom">
+        <span class="theme-preview theme-preview-custom">🎨</span>
+        Custom
+      </button>
+    </div>
+
+    <div id="themeCustom" class="hidden">
+      <hr />
+      <p class="dim">Custom colors — preview updates live.</p>
+      <div class="theme-grid">
+        <label>Background <input type="color" id="themeBg" /></label>
+        <label>Panel / cards <input type="color" id="themePanel" /></label>
+        <label>Text <input type="color" id="themeText" /></label>
+        <label>Dim text <input type="color" id="themeDim" /></label>
+        <label>Accent <input type="color" id="themeAccent" /></label>
+        <label>Border <input type="color" id="themeBorder" /></label>
+        <label>Danger <input type="color" id="themeDanger" /></label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SETTINGS ============ -->
+  <section id="panel-settings" class="panel">
+    <h2 class="section-title">Always-on features</h2>
+    <p class="dim">These run on every page you visit. Switch off any you don't use —
+      takes effect on tabs opened or refreshed after you toggle it.</p>
+    <div class="row">
+      <label class="switch-label"><input type="checkbox" id="toggleClipboard" /> 📋 Clipboard history capture</label>
+    </div>
+    <div class="row">
+      <label class="switch-label"><input type="checkbox" id="toggleSnippets" /> 👔 Snippet expansion (;shortcut)</label>
+    </div>
+    <div class="row">
+      <label class="switch-label"><input type="checkbox" id="toggleReporter" /> 🐞 Bug reporter error buffering</label>
+    </div>
+    <p class="warn">Off by default: it patches console.error site-wide to capture it for bug
+      reports, and Chrome then attributes ANY site's console.error calls to OmniKit's own
+      "Errors" entry on chrome://extensions — including errors that have nothing to do with
+      OmniKit. Turn it on right before you need to file a bug report, not as a background habit.</p>
+
+    <hr />
+
+    <h2 class="section-title">Backup &amp; restore</h2>
+    <p class="dim">Export everything OmniKit has stored (sessions, clips, watches, snippets,
+      candidates, checklists, alerts, settings) as one JSON file, then import it in OmniKit
+      on another browser/machine to carry your data over.</p>
+    <div class="row">
+      <button id="dataExport" class="btn primary">⬇ Export all data</button>
+      <button id="dataImportBtn" class="btn">⬆ Import data…</button>
+      <input type="file" id="dataImportFile" accept=".json" class="hidden" />
+    </div>
+    <p class="warn">Importing <b>replaces</b> all current OmniKit data on this device with the
+      file's contents. This can't be undone.</p>
+  </section>
+
   <script src="popup.js"></script>
   <script src="clips.js"></script>
   <script src="watch.js"></script>
   <script src="storagepanel.js"></script>
   <script src="alerts.js"></script>
   <script src="hr.js"></script>
+  <script src="theme.js"></script>
+  <script src="settings.js"></script>
 </body>
 </html>

@@ -17,13 +17,80 @@ const DEFAULTS = {
     eye: { on: false, min: 20 },
     namaz: { on: false, city: "Karachi", country: "Pakistan", times: null, date: null, error: null }
   },
-  customAlerts: [] // [{ id, label, time: "HH:MM", daily }]
+  customAlerts: [], // [{ id, label, time: "HH:MM", daily }]
+  // Always-on content scripts, user-switchable. `reporter` defaults OFF: it patches
+  // console.error/window.onerror site-wide for the bug reporter, and Chrome attributes
+  // ANY page's console.error calls made through that patch to OmniKit's own
+  // chrome://extensions Errors panel (there's no way to intercept without this).
+  // Off by default so it doesn't pollute that panel with noise from unrelated sites —
+  // turn it on in Settings right before you need to capture a bug report.
+  featureToggles: { clipboard: true, snippets: true, reporter: false }
 };
+
+// --- Always-on content scripts, registered dynamically so each one can be
+// switched off by the user instead of running on every page unconditionally. ---
+
+const CONTENT_SCRIPT_DEFS = {
+  clipboard: {
+    id: "ok-clip",
+    js: ["content/clip.js"],
+    matches: ["<all_urls>"],
+    runAt: "document_idle"
+  },
+  snippets: {
+    id: "ok-snippets",
+    js: ["content/snippets.js"],
+    matches: ["<all_urls>"],
+    runAt: "document_idle",
+    allFrames: true,
+    matchOriginAsFallback: true
+  },
+  reporter: {
+    id: "ok-reporter",
+    js: ["content/reporter.js"],
+    matches: ["<all_urls>"],
+    runAt: "document_start",
+    world: "MAIN"
+  }
+};
+
+async function syncDynamicContentScripts() {
+  const { featureToggles } = await chrome.storage.local.get("featureToggles");
+  const toggles = { ...DEFAULTS.featureToggles, ...(featureToggles || {}) };
+  const registered = await chrome.scripting.getRegisteredContentScripts();
+  const registeredIds = new Set(registered.map((s) => s.id));
+  for (const [key, def] of Object.entries(CONTENT_SCRIPT_DEFS)) {
+    const wantOn = toggles[key] !== false;
+    const isOn = registeredIds.has(def.id);
+    if (wantOn && !isOn) {
+      await chrome.scripting.registerContentScripts([{
+        id: def.id,
+        js: def.js,
+        matches: def.matches,
+        runAt: def.runAt,
+        allFrames: def.allFrames,
+        matchOriginAsFallback: def.matchOriginAsFallback,
+        world: def.world,
+        persistAcrossSessions: true
+      }]);
+    } else if (!wantOn && isOn) {
+      await chrome.scripting.unregisterContentScripts({ ids: [def.id] });
+    }
+  }
+}
 
 async function scheduleWatcherAlarm() {
   const { watchInterval } = await chrome.storage.local.get("watchInterval");
   const minutes = Math.max(1, Math.min(1440, Number(watchInterval) || DEFAULT_WATCH_PERIOD_MIN));
   await chrome.alarms.create("watcher", { periodInMinutes: minutes });
+}
+
+async function resyncAll() {
+  const { focusEnabled, blocklist } = await chrome.storage.local.get(["focusEnabled", "blocklist"]);
+  await applyBlockingRules(focusEnabled ? blocklist : []);
+  await scheduleWatcherAlarm();
+  await resyncAlerts();
+  await syncDynamicContentScripts();
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
@@ -33,15 +100,13 @@ chrome.runtime.onInstalled.addListener(async () => {
     if (stored[key] === undefined) init[key] = value;
   }
   if (Object.keys(init).length) await chrome.storage.local.set(init);
-  // Re-sync blocking rules with stored state after update/reload.
-  const { focusEnabled, blocklist } = await chrome.storage.local.get(["focusEnabled", "blocklist"]);
-  await applyBlockingRules(focusEnabled ? blocklist : []);
-  await scheduleWatcherAlarm();
-  await resyncAlerts();
+  // Re-sync blocking rules, alarms, and content scripts with stored state after update/reload.
+  await resyncAll();
 });
 
 chrome.runtime.onStartup.addListener(async () => {
   await resyncAlerts();
+  await syncDynamicContentScripts();
 });
 
 // --- Focus mode blocking ---
@@ -394,6 +459,16 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         await scheduleWatcherAlarm();
         break;
       }
+      case "settings:toggleFeature": {
+        const { featureToggles = {} } = await chrome.storage.local.get("featureToggles");
+        featureToggles[msg.key] = msg.enabled;
+        await chrome.storage.local.set({ featureToggles });
+        await syncDynamicContentScripts();
+        break;
+      }
+      case "settings:resyncAll":
+        await resyncAll();
+        break;
     }
     sendResponse({ ok: true });
   })();

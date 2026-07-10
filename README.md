@@ -64,7 +64,11 @@ Ten tools, one install.
 
 ### 🐞 Bug Report Generator (🐞 button in popup header) — for QA & PMs
 - One click captures: screenshot, page URL/title, browser & OS, viewport,
-  console errors, and failed network requests (recorded quietly on every page)
+  console errors, and failed network requests
+- **Console/network capture must be turned on in Settings first** (off by
+  default — it patches `console.error` site-wide, which makes Chrome
+  attribute *any* site's console errors to OmniKit's own error log; see the
+  Settings tab). Turn it on before reproducing the bug, not as a background habit.
 - Fill in title/steps/expected/actual + severity, then **Copy as Markdown** —
   paste straight into Jira or GitHub; screenshot downloads separately
 - "Annotate screenshot" opens the capture in the drawing editor first
@@ -72,6 +76,19 @@ Ten tools, one install.
 ### 🔍 API Request Inspector (DevTools → "OmniKit API" panel)
 - Logs network requests with headers and pretty-printed bodies
 - Copy any request as **cURL** or **fetch**; replay it in the page's own context
+
+### 🎨 Theme (popup → Theme tab)
+- 3 built-in themes: Dark (default), Light, Midnight
+- Custom theme: pick your own background, panel, text, accent, border, and
+  danger colors — preview updates live as you pick
+
+### ⚙️ Settings (popup → Settings tab)
+- Switch off any always-on content script you don't use (clipboard capture,
+  snippet expansion, bug-report error buffering) — change applies to tabs
+  opened/refreshed after the switch
+- Export all OmniKit data (sessions, clips, watches, snippets, candidates,
+  checklists, alerts, settings) as one JSON file and import it into OmniKit
+  on another browser/machine
 
 ## Install (developer mode)
 
@@ -84,15 +101,17 @@ Extras:
 - **Local .md preview**: on the extension's card in `chrome://extensions`, enable
   *Allow access to file URLs*
 - **API inspector**: open DevTools (F12) → **OmniKit API** tab, then reload the page
-- Content scripts (clipboard, markdown, GitHub) only start working on pages
-  loaded *after* the extension is installed/reloaded
+- Content scripts (clipboard, snippets, bug reporter, markdown, GitHub) only
+  start working on pages loaded *after* the extension is installed/reloaded,
+  or after a feature toggle is switched on in Settings
 
 ## Project structure
 
 ```
 manifest.json           MV3 manifest
-background.js           Service worker: focus rules, pomodoro, clips, watcher
-popup/                  Main UI (Dev / Tabs / Focus / Clips / Watch / Storage)
+background.js           Service worker: focus rules, pomodoro, clips, watcher,
+                         feature-toggle content script registration
+popup/                  Main UI (Dev / Tabs / Focus / Clips / Watch / Storage / Theme / Settings)
 content/clip.js         Clipboard capture on all pages
 content/picker.js       Element picker for the watcher (injected on demand)
 content/csspeeper.js    Style inspector overlay (injected on demand)

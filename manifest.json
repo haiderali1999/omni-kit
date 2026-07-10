@@ -26,24 +26,6 @@
   "devtools_page": "devtools/devtools.html",
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content/clip.js"],
-      "run_at": "document_idle"
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content/snippets.js"],
-      "run_at": "document_idle",
-      "all_frames": true,
-      "match_about_blank": true
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content/reporter.js"],
-      "run_at": "document_start",
-      "world": "MAIN"
-    },
-    {
       "matches": [
         "*://*/*.md",
         "*://*/*.markdown",

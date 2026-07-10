@@ -57,13 +57,22 @@ via `chrome.runtime.sendMessage({ target: "offscreen", ... })`. The
 `target: "offscreen"` so the two listeners don't race.
 
 **Content scripts by injection mode:**
-- Always-on (declared in `manifest.json`, run on every page): `content/clip.js`
-  (clipboard capture), `content/snippets.js` (text-expansion, `all_frames`),
-  `content/reporter.js` (runs in `world: "MAIN"` at `document_start` to
-  monkey-patch `fetch`/`XHR`/`console.error` and buffer errors on
-  `window.__okErrors`/`__okNetErrors` for the bug reporter), plus conditional
-  scripts matched by URL pattern: `content/markdown.js` (`*.md`/`*.markdown`)
-  and `content/github.js` (`github.com/*`).
+- Always-on but user-switchable (registered dynamically by `background.js`
+  via `chrome.scripting.registerContentScripts`, *not* declared in
+  `manifest.json`): `content/clip.js` (clipboard capture),
+  `content/snippets.js` (text-expansion, `all_frames`), `content/reporter.js`
+  (runs in `world: "MAIN"` at `document_start` to monkey-patch
+  `fetch`/`XHR`/`console.error` and buffer errors on
+  `window.__okErrors`/`__okNetErrors` for the bug reporter). Each one is
+  keyed in `CONTENT_SCRIPT_DEFS` and gated by `featureToggles.<key>` in
+  storage; `syncDynamicContentScripts()` registers/unregisters them to match,
+  called on install, on startup, and whenever the Settings tab flips a
+  toggle (`settings:toggleFeature` message). A toggle only affects tabs
+  opened or refreshed after it changes — already-loaded tabs keep whatever
+  was injected at load time.
+- Statically declared in `manifest.json`, conditional on URL pattern (not
+  user-toggleable): `content/markdown.js` (`*.md`/`*.markdown`) and
+  `content/github.js` (`github.com/*`).
 - On-demand (injected via `chrome.scripting.executeScript` from
   `popup/popup.js` when a toolbar button is clicked): `content/picker.js`
   (element picker for the watcher) and `content/csspeeper.js` (style
@@ -72,7 +81,9 @@ via `chrome.runtime.sendMessage({ target: "offscreen", ... })`. The
 
 **Popup is tab-panelled**, one JS file per feature area
 (`popup/popup.js` for Dev/Tabs/Focus, `popup/clips.js`, `popup/watch.js`,
-`popup/storagepanel.js`, `popup/hr.js`, `popup/alerts.js`), all loaded into
+`popup/storagepanel.js`, `popup/hr.js`, `popup/alerts.js`,
+`popup/theme.js` for popup theming, `popup/settings.js` for feature toggles +
+full-data export/import), all loaded into
 `popup/popup.html` and operating on the same DOM/storage. The `$ = (id) =>
 document.getElementById(id)` helper and `showToast()` in `popup.js` are
 reused informally by convention across these files — check for an existing
@@ -85,6 +96,17 @@ keyed off `RULE_ID_OFFSET`, rewritten wholesale on every blocklist change via
 **Pomodoro and focus mode are coupled**: starting/stopping a Pomodoro phase
 calls `setFocus()`, so focus-mode blocking auto-toggles with focus/break
 phases.
+
+**Theming is popup-local and storage-only** (`popup/theme.js`, `theme` key in
+`chrome.storage.local`): 3 built-in presets plus a fully custom palette
+(7 CSS custom properties: `--bg`, `--panel`, `--text`, `--dim`, `--accent`,
+`--border`, `--danger`, defined in `popup/popup.css`'s `:root` and overridden
+at runtime via `document.documentElement.style.setProperty`). It's written
+directly from the popup with no background-worker involvement — unlike the
+message-routed state described above, theme has no side effects outside the
+popup's own rendering, so it doesn't need the `DEFAULTS/onMessage` pattern.
+Other extension pages (devtools panel, screenshot annotator, bug report,
+blocked page) have their own separate stylesheets and are not themed by this.
 
 **Cross-cutting UI conventions**: pages that need to hand data to a page
 opened in a new tab (screenshot annotator, bug report, blocked page) do so by
