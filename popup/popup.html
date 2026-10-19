@@ -227,16 +227,18 @@
 
   <!-- ============ ALERTS ============ -->
   <section id="panel-alerts" class="panel">
+    <div id="namazBlock" hidden>
     <div class="row">
       <label class="switch-label"><input type="checkbox" id="namazToggle" /> 🕌 Namaz alerts</label>
     </div>
     <div class="row">
-      <input id="namazCity" placeholder="City, e.g. Karachi" />
-      <input id="namazCountry" placeholder="Country, e.g. Pakistan" />
+      <input id="namazCity" placeholder="Your city" />
+      <input id="namazCountry" placeholder="Your country" />
     </div>
     <div id="namazTimes" class="namaz-times"></div>
     <p class="dim" id="namazStatus"></p>
     <hr />
+    </div>
     <div class="row">
       <label class="switch-label"><input type="checkbox" id="waterToggle" /> 💧 Water reminder every</label>
       <input id="waterMin" type="number" min="5" max="480" value="60" />
@@ -353,6 +355,9 @@
     </div>
     <div class="row">
       <label class="switch-label"><input type="checkbox" id="toggleSnippets" /> 👔 Snippet expansion (;shortcut)</label>
+    </div>
+    <div class="row">
+      <label class="switch-label"><input type="checkbox" id="togglePrayer" /> 🕌 Prayer times (optional — sends your city &amp; country to api.aladhan.com)</label>
     </div>
     <div class="row">
       <label class="switch-label"><input type="checkbox" id="toggleReporter" /> 🐞 Bug reporter error buffering</label>

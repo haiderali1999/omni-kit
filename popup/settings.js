@@ -4,19 +4,28 @@
 const FEATURE_TOGGLE_IDS = {
   clipboard: "toggleClipboard",
   snippets: "toggleSnippets",
-  reporter: "toggleReporter"
+  reporter: "toggleReporter",
+  prayer: "togglePrayer"
 };
 
 async function renderFeatureToggles() {
   const { featureToggles = {} } = await chrome.storage.local.get("featureToggles");
   for (const [key, elId] of Object.entries(FEATURE_TOGGLE_IDS)) {
-    $(elId).checked = featureToggles[key] !== false;
+    // prayer is opt-in (off unless explicitly enabled); the rest default on except reporter
+    $(elId).checked = key === "prayer" || key === "reporter" ? featureToggles[key] === true : featureToggles[key] !== false;
   }
 }
 
 for (const [key, elId] of Object.entries(FEATURE_TOGGLE_IDS)) {
   $(elId).addEventListener("change", (e) => {
     chrome.runtime.sendMessage({ type: "settings:toggleFeature", key, enabled: e.target.checked });
+    if (key === "prayer" && !e.target.checked) {
+      // turning the feature off also stops the alarms and the network calls
+      loadAlertConfig().then((a) => {
+        a.namaz.on = false;
+        return chrome.runtime.sendMessage({ type: "alerts:update", alerts: a });
+      });
+    }
   });
 }
 

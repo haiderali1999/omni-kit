@@ -15,7 +15,7 @@ const DEFAULTS = {
   alerts: {
     water: { on: false, min: 60 },
     eye: { on: false, min: 20 },
-    namaz: { on: false, city: "Karachi", country: "Pakistan", times: null, date: null, error: null }
+    namaz: { on: false, city: "", country: "", times: null, date: null, error: null }
   },
   customAlerts: [], // [{ id, label, time: "HH:MM", daily }]
   // Always-on content scripts, user-switchable. `reporter` defaults OFF: it patches
@@ -24,7 +24,7 @@ const DEFAULTS = {
   // chrome://extensions Errors panel (there's no way to intercept without this).
   // Off by default so it doesn't pollute that panel with noise from unrelated sites —
   // turn it on in Settings right before you need to capture a bug report.
-  featureToggles: { clipboard: true, snippets: true, reporter: false }
+  featureToggles: { clipboard: true, snippets: true, reporter: false, prayer: false }
 };
 
 // --- Always-on content scripts, registered dynamically so each one can be
@@ -303,7 +303,7 @@ async function clearNamazAlarms() {
 async function refreshNamaz() {
   const alerts = await getAlerts();
   const nz = alerts.namaz;
-  if (!nz || !nz.on) return;
+  if (!nz || !nz.on || !nz.city || !nz.country) return;
   const now = new Date();
   const dateStr =
     String(now.getDate()).padStart(2, "0") + "-" +

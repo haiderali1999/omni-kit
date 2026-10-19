@@ -6,7 +6,7 @@ const ALERT_PRAYERS = ["Fajr", "Dhuhr", "Asr", "Maghrib", "Isha"];
 const ALERT_DEFAULTS = {
   water: { on: false, min: 60 },
   eye: { on: false, min: 20 },
-  namaz: { on: false, city: "Karachi", country: "Pakistan", times: null, date: null, error: null }
+  namaz: { on: false, city: "", country: "", times: null, date: null, error: null }
 };
 
 async function loadAlertConfig() {
@@ -16,6 +16,8 @@ async function loadAlertConfig() {
 
 async function renderAlertsPanel() {
   const a = await loadAlertConfig();
+  const { featureToggles = {} } = await chrome.storage.local.get("featureToggles");
+  $("namazBlock").hidden = featureToggles.prayer !== true; // opt-in feature
   $("namazToggle").checked = !!a.namaz.on;
   if (document.activeElement !== $("namazCity")) $("namazCity").value = a.namaz.city || "";
   if (document.activeElement !== $("namazCountry")) $("namazCountry").value = a.namaz.country || "";
@@ -48,8 +50,12 @@ async function renderAlertsPanel() {
 async function pushAlertConfig() {
   const a = await loadAlertConfig();
   a.namaz.on = $("namazToggle").checked;
-  a.namaz.city = $("namazCity").value.trim() || "Karachi";
-  a.namaz.country = $("namazCountry").value.trim() || "Pakistan";
+  a.namaz.city = $("namazCity").value.trim();
+  a.namaz.country = $("namazCountry").value.trim();
+  if (a.namaz.on && (!a.namaz.city || !a.namaz.country)) {
+    a.namaz.on = false;
+    showToast("Enter your city and country first");
+  }
   a.water = { on: $("waterToggle").checked, min: Math.max(5, parseInt($("waterMin").value, 10) || 60) };
   a.eye = { on: $("eyeToggle").checked, min: Math.max(5, parseInt($("eyeMin").value, 10) || 20) };
   await chrome.runtime.sendMessage({ type: "alerts:update", alerts: a });
@@ -106,7 +112,7 @@ $("alertAdd").addEventListener("click", async () => {
 
 // live-update prayer times once the background fetch completes
 chrome.storage.onChanged.addListener((changes, area) => {
-  if (area === "local" && changes.alerts) renderAlertsPanel();
+  if (area === "local" && (changes.alerts || changes.featureToggles)) renderAlertsPanel();
 });
 
 renderAlertsPanel();
