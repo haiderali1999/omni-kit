@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Firefox (`mozilla` branch)
+
+This branch targets Firefox (AMO). Differences from `main`: the manifest uses
+`background.scripts` (event page) instead of a service worker, there is no
+offscreen document (the watcher parses HTML with `DOMParser` directly in
+`background.js`), `browser_specific_settings.gecko` holds the add-on ID and
+`data_collection_permissions`, and alarms are recreated in `onStartup`
+because Firefox doesn't persist them. Test via `about:debugging` → *Load
+Temporary Add-on*; lint with `npx web-ext lint`; package with
+`npx web-ext build`.
+
 ## What this is
 
 OmniKit is a Chrome Manifest V3 extension bundling ten independent tools (dev

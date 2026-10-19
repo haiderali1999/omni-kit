@@ -75,7 +75,7 @@ async function renderCustomAlerts() {
     info.className = "grow";
     info.innerHTML =
       `<div>⏰ ${escapeHtml(a.label)}</div>` +
-      `<div class="meta">${a.time} · ${a.daily ? "daily" : "once"}</div>`;
+      `<div class="meta">${escapeHtml(a.time)} · ${a.daily ? "daily" : "once"}</div>`;
     const del = document.createElement("button");
     del.className = "btn danger";
     del.textContent = "✕";

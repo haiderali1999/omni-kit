@@ -56,6 +56,8 @@ $("dataImportFile").addEventListener("change", async (e) => {
   if (!confirm("This replaces ALL current OmniKit data on this device with the file's contents. Continue?")) {
     return;
   }
+  // Drop one-shot hand-off keys; they are never part of a legitimate backup.
+  for (const k of Object.keys(data)) if (k.startsWith("pending")) delete data[k];
   await chrome.storage.local.clear();
   await chrome.storage.local.set(data);
   await chrome.runtime.sendMessage({ type: "settings:resyncAll" });

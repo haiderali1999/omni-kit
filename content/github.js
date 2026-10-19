@@ -42,10 +42,16 @@
         "display:inline-flex;gap:10px;align-items:center;margin:4px 0 0 4px;padding:3px 10px;" +
         "background:rgba(79,140,255,.12);border:1px solid rgba(79,140,255,.4);border-radius:20px;" +
         "font-size:12px;color:inherit;vertical-align:middle;";
-      badge.innerHTML =
-        `<span title="Repository size">📦 ${fmtSize(data.size)}</span>` +
-        `<span title="Default branch">🌿 ${data.default_branch}</span>` +
-        `<span title="Last push">⏱ ${timeAgo(data.pushed_at)}</span>`;
+      for (const [title, text] of [
+        ["Repository size", `📦 ${fmtSize(Number(data.size) || 0)}`],
+        ["Default branch", `🌿 ${String(data.default_branch)}`],
+        ["Last push", `⏱ ${timeAgo(data.pushed_at)}`]
+      ]) {
+        const span = document.createElement("span");
+        span.title = title;
+        span.textContent = text;
+        badge.appendChild(span);
+      }
 
       const anchor =
         document.querySelector("#repository-container-header strong") ||

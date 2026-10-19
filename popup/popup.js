@@ -529,6 +529,7 @@ $("paletteExtract").addEventListener("click", async () => {
   for (const [hex] of result || []) {
     const sw = document.createElement("div");
     sw.className = "swatch";
+    if (!/^#[0-9a-f]{6}$/i.test(hex)) continue;
     sw.innerHTML = `<div class="chip" style="background:${hex}"></div><span class="hex">${hex}</span>`;
     sw.addEventListener("click", () => {
       navigator.clipboard.writeText(hex);

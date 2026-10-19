@@ -56,12 +56,19 @@ function render() {
     if (!matchesFilter(r, q)) return;
     const tr = document.createElement("tr");
     if (i === selectedIndex) tr.classList.add("selected");
-    tr.innerHTML = `
-      <td>${r.method}</td>
-      <td class="${statusClass(r.status)}">${r.status}</td>
-      <td class="url" title="${r.url.replace(/"/g, "&quot;")}">${r.url}</td>
-      <td>${r.type}</td>
-      <td>${r.timeMs} ms</td>`;
+    // Request data comes from arbitrary pages: build cells with textContent, never innerHTML.
+    const cell = (text, cls, title) => {
+      const td = document.createElement("td");
+      td.textContent = text;
+      if (cls) td.className = cls;
+      if (title) td.title = title;
+      tr.appendChild(td);
+    };
+    cell(r.method);
+    cell(r.status, statusClass(r.status));
+    cell(r.url, "url", r.url);
+    cell(r.type);
+    cell(`${r.timeMs} ms`);
     tr.addEventListener("click", () => select(i));
     rowsEl.appendChild(tr);
   });

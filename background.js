@@ -1,4 +1,4 @@
-// OmniKit service worker: focus-mode blocking, pomodoro, clipboard history, page watcher.
+// OmniKit background event page (Firefox): focus-mode blocking, pomodoro, clipboard history, page watcher.
 
 const RULE_ID_OFFSET = 1000;
 const MAX_CLIPS = 300;
@@ -105,6 +105,10 @@ chrome.runtime.onInstalled.addListener(async () => {
 });
 
 chrome.runtime.onStartup.addListener(async () => {
+  // Firefox does not persist alarms across browser restarts; recreate them.
+  await scheduleWatcherAlarm();
+  const { pomodoro } = await chrome.storage.local.get("pomodoro");
+  if (pomodoro) await chrome.alarms.create("pomodoro", { when: Math.max(pomodoro.endTime, Date.now() + 1000) });
   await resyncAlerts();
   await syncDynamicContentScripts();
 });
@@ -182,8 +186,7 @@ function notify(title, message, id) {
     type: "basic",
     iconUrl: "icons/icon128.png",
     title,
-    message,
-    priority: 2
+    message
   });
 }
 
@@ -222,23 +225,23 @@ async function addClip(text, source) {
 
 // --- Page watcher ---
 
-async function ensureOffscreen() {
-  const has = await chrome.offscreen.hasDocument();
-  if (has) return;
-  try {
-    await chrome.offscreen.createDocument({
-      url: "offscreen/offscreen.html",
-      reasons: ["DOM_PARSER"],
-      justification: "Fetch and parse watched pages to detect content changes"
-    });
-  } catch (e) {
-    if (!String(e).includes("single offscreen")) throw e;
-  }
-}
-
+// Firefox event pages have a DOM, so DOMParser is available here directly.
 async function fetchWatchValue(url, selector) {
-  await ensureOffscreen();
-  return chrome.runtime.sendMessage({ target: "offscreen", type: "watch:fetch", url, selector });
+  try {
+    if (!/^https?:\/\//i.test(url)) throw new Error("Only http(s) pages can be watched");
+    const res = await fetch(url, { credentials: "omit", cache: "no-store" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    // Strip <script>/<link> so parsing never triggers resource loads.
+    const html = (await res.text())
+      .replace(/<script\b[\s\S]*?<\/script>/gi, "")
+      .replace(/<link\b[^>]*>/gi, "");
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const el = doc.querySelector(selector);
+    if (!el) throw new Error("Element not found (selector may have changed)");
+    return { ok: true, value: (el.textContent || "").trim().slice(0, 500) };
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
 }
 
 async function checkWatch(id) {
@@ -389,7 +392,6 @@ async function handleAlertAlarm(name) {
 // --- Messages ---
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg && msg.target === "offscreen") return; // handled by the offscreen document
   (async () => {
     switch (msg.type) {
       case "focus:set":
@@ -407,9 +409,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         await stopPomodoro();
         break;
       case "clip:add":
-        await addClip(msg.text, sender.tab ? new URL(sender.tab.url).hostname : "");
+        if (typeof msg.text !== "string" || !sender.tab) break;
+        await addClip(msg.text, new URL(sender.tab.url).hostname);
         break;
       case "watch:add": {
+        if (!/^https?:\/\//i.test(msg.url || "")) break;
         const { watches = [] } = await chrome.storage.local.get("watches");
         watches.unshift({
           id: crypto.randomUUID(),
