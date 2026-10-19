@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OmniKit Privacy Policy</title><style>
+:root{--bg:#fff;--text:#1b1e26;--dim:#5b6070;--accent:#3b6fd9;--border:#e2e5ec}
+@media(prefers-color-scheme:dark){:root{--bg:#15171d;--text:#e8eaf0;--dim:#9aa0b0;--accent:#7aa2ff;--border:#2a2e38}}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,sans-serif}
+main{max-width:760px;margin:0 auto;padding:32px 16px 64px}
+a{color:var(--accent)}h1{margin-top:0}.dim{color:var(--dim)}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid var(--border);padding:8px;text-align:left;vertical-align:top}
+nav a{margin-right:16px}li{margin:4px 0}
+</style></head><body><main><nav><a href="index.html">Home</a><a href="privacy.html">Privacy</a><a href="support.html">Support</a></nav><h1>OmniKit Privacy Policy</h1>
+<p><span class="dim">Last updated: 2026-10-19</span></p>
+<p>OmniKit is a toolkit that runs entirely inside your browser. <strong>I do not run any server, and I do not collect, receive, sell or share your data.</strong> Everything OmniKit stores stays on your device in the browser's local extension storage and can be wiped by uninstalling the add-on or using Settings → Export / Import.</p>
+<h2>What is stored on your device</h2>
+<p>Clipboard history (text you copy on web pages, only while that feature is on), saved tab sessions, focus-mode blocklist and Pomodoro stats, page-watcher entries (URL, CSS selector, last value), text snippets, HR candidates/checklists, alerts, theme and settings. None of this leaves your device.</p>
+<h2>Network requests OmniKit makes</h2>
+<table><tr><th>When</th><th>Destination</th><th>What is sent</th></tr><tr><td>Page watcher is checking a page <strong>you chose to watch</strong></td><td>That page's own server</td><td>A normal GET request (no cookies)</td></tr><tr><td>You open a repository page on github.com</td><td>api.github.com</td><td>The public <code>owner/repo</code> name shown in the address bar</td></tr><tr><td>You <strong>opt in</strong> to Prayer times (Settings) and enter a city and country</td><td>api.aladhan.com</td><td>The city and country you typed</td></tr></table>
+<p>No analytics, telemetry, advertising or tracking of any kind is included.</p>
+<h2>Permissions, and why</h2>
+<ul>
+<li><strong>All sites / tabs / scripting</strong>: clipboard capture, snippet expansion, markdown preview, GitHub badge, element picker, CSS inspector, colour/email finder, storage manager and bug reporter act on pages you are viewing.</li>
+<li><strong>cookies</strong>: shown in the Storage manager so you can view/edit/delete them. Never transmitted.</li>
+<li><strong>declarativeNetRequest</strong>: Focus mode redirects blocklisted sites to a local page.</li>
+<li><strong>notifications, alarms</strong>: Pomodoro, watcher and reminder alerts.</li>
+<li><strong>storage / unlimitedStorage</strong>: local data above.</li>
+<li><strong>tabGroups</strong>: "Group by domain".</li>
+</ul>
+<h2>Your control</h2>
+<p>Every always-on feature (clipboard, snippets, bug reporter, prayer times) can be switched off in Settings. Clipboard history can be cleared at any time. Uninstalling removes all data.</p>
+<h2>Contact</h2>
+<p>Haider Ali — haideralimughal512@gmail.com</p></main></body></html>

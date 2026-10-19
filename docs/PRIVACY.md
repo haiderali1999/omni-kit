@@ -28,4 +28,4 @@ No analytics, telemetry, advertising or tracking of any kind is included.
 Every always-on feature (clipboard, snippets, bug reporter, prayer times) can be switched off in Settings. Clipboard history can be cleared at any time. Uninstalling removes all data.
 
 ## Contact
-Haider Ali — nj01@724.one
+Haider Ali — haideralimughal512@gmail.com

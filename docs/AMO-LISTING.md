@@ -26,8 +26,9 @@ Privacy: everything is stored locally. No accounts, analytics or tracking. See t
 Productivity; Developer Tools
 
 ## Support / privacy URLs (you must host these)
-- Privacy policy: <URL of docs/PRIVACY.md, e.g. its GitHub page>
-- Support email: nj01@724.one
+- Privacy policy: <URL of docs/privacy.html once hosted>
+- Homepage (optional): <URL of docs/index.html>
+- Support email: haideralimughal512@gmail.com (page: docs/support.html)
 
 ## Notes to reviewers
 - No build step, no minification, no bundled libraries: the zip is the plain source.
